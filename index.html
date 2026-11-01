@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12302f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="حضور و غیاب">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>حضور و غیاب</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f2;--card:#fff;--ink:#12302f;--mute:#5d7776;--line:#d3e0de;--pre:#1f8a5b;--abs:#c2413b;--late:#c98a10;--brand:#12302f;--onbrand:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b1a;--card:#172928;--ink:#e6f1ef;--mute:#8fa9a6;--line:#27403e;--pre:#3fbf86;--abs:#ec6a63;--late:#e8b13f;--brand:#e6f1ef;--onbrand:#0f1b1a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1b1a;--card:#172928;--ink:#e6f1ef;--mute:#8fa9a6;--line:#27403e;--pre:#3fbf86;--abs:#ec6a63;--late:#e8b13f;--brand:#e6f1ef;--onbrand:#0f1b1a;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.7 Vazirmatn,Tahoma,sans-serif;padding-bottom:130px}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:22px;font-weight:800;margin:4px 0 14px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pre);outline-offset:2px}
+.date{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.date .d{flex:1;text-align:center;font-weight:600}
+.ib{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:20px}
+.sum{display:flex;gap:8px;margin-bottom:12px}
+.sum div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center;font-size:13px;color:var(--mute)}
+.sum b{display:block;font-size:22px;font-weight:800}
+.row{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.nm{font-weight:600;margin-bottom:6px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-weight:600}
+.seg .p.on{background:var(--pre);border-color:var(--pre);color:#fff}
+.seg .l.on{background:var(--late);border-color:var(--late);color:#fff}
+.seg .a.on{background:var(--abs);border-color:var(--abs);color:#fff}
+.btn{min-height:46px;border-radius:12px;border:0;background:var(--brand);color:var(--onbrand);font-weight:600;padding:0 18px}
+.btn.full{width:100%;margin-bottom:12px}
+.btn.ghost{background:transparent;color:var(--abs);border:1.5px solid var(--line);min-height:40px;padding:0 12px}
+.add{display:flex;gap:8px;margin-bottom:14px}
+.add input{flex:1;min-width:0;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);padding:0 12px}
+.pr{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;display:flex;margin:6px 0}
+.bar i{display:block;height:100%}
+.meta{font-size:13px;color:var(--mute);display:flex;gap:12px;flex-wrap:wrap}
+.empty{text-align:center;color:var(--mute);padding:36px 12px;background:var(--card);border:1px dashed var(--line);border-radius:14px}
+.pk{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.pk .hd{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.pk .hd b{flex:1;text-align:center}
+.g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.g span{font-size:13px;color:var(--mute)}
+.g button{min-height:42px;border-radius:10px;border:1px solid transparent;background:transparent}
+.g button.has{border-color:var(--line);font-weight:600}
+.g button.td{border-color:var(--pre)}
+.g button.sel{background:var(--brand);color:var(--onbrand);border-color:var(--brand)}
+.date .d{font-weight:600;font-size:15px}
+.sq{width:100%;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);padding:0 12px;margin-bottom:10px}
+.ta{width:100%;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);padding:8px 10px;margin-bottom:8px;resize:vertical}
+.nt{font-size:13px;color:var(--mute);background:var(--bg);border-radius:8px;padding:6px 10px;margin-bottom:8px}
+.ib.sm{width:auto;height:36px;padding:0 10px;font-size:13px}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}
+.chips button{flex:none;min-height:40px;padding:0 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--card)}
+.chips button.on{background:var(--brand);color:var(--onbrand);border-color:var(--brand)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;min-height:60px;border:0;background:transparent;font-weight:600;color:var(--mute)}
+nav button.on{color:var(--ink);box-shadow:inset 0 3px 0 var(--pre)}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="nav"></nav>
+<script>
+const KEY='attendance-v1';
+let S={people:[],records:{}};
+try{const r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
+S.notes=S.notes||{};S.why=S.why||{};S.mins=S.mins||{};S.times=S.times||{};
+let _m=0;S.people.forEach(p=>{if(p.no)_m=Math.max(_m,p.no)});S.people.forEach(p=>{if(!p.no)p.no=++_m});
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+let date=iso(new Date()),tab='today',askDel=null,q='',openN=null,fs='all',askAll=false;
+const WHY=['بیماری','مسافرت','مشکل شخصی','بدون اطلاع','سایر'];
+const fa=n=>Number(n).toLocaleString('fa-IR');
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=i=>new Date(i+'T12:00:00').toLocaleDateString('fa-IR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const faY=n=>Number(n).toLocaleString('fa-IR',{useGrouping:false});
+const pad=n=>String(n).padStart(2,'0');
+const div=(a,b)=>Math.floor(a/b);
+function g2j(gy,gm,gd){const g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];let jy=gy<=1600?0:979;gy-=gy<=1600?621:1600;const gy2=gm>2?gy+1:gy;let days=365*gy+div(gy2+3,4)-div(gy2+99,100)+div(gy2+399,400)-80+gd+g_d_m[gm-1];jy+=33*div(days,12053);days%=12053;jy+=4*div(days,1461);days%=1461;if(days>365){jy+=div(days-1,365);days=(days-1)%365}const jm=days<186?1+div(days,31):7+div(days-186,30);const jd=1+(days<186?days%31:(days-186)%30);return [jy,jm,jd]}
+function j2g(jy,jm,jd){let gy=jy>979?1600:621;jy-=jy>979?979:0;let days=365*jy+div(jy,33)*8+div(jy%33+3,4)+78+jd+(jm<7?(jm-1)*31:(jm-7)*30+186);gy+=400*div(days,146097);days%=146097;if(days>36524){gy+=100*div(--days,36524);days%=36524;if(days>=365)days++}gy+=4*div(days,1461);days%=1461;if(days>365){gy+=div(days-1,365);days=(days-1)%365}let gd=days+1;const sal=[0,31,(gy%4==0&&gy%100!=0)||gy%400==0?29:28,31,30,31,30,31,31,30,31,30,31];let gm;for(gm=0;gm<13&&gd>sal[gm];gm++)gd-=sal[gm];return [gy,gm,gd]}
+const parts=i=>i.split('-').map(Number);
+const jToIso=(y,m,d)=>{const g=j2g(y,m,d);return g[0]+'-'+pad(g[1])+'-'+pad(g[2])};
+const jDim=(y,m)=>m<=6?31:m<=11?30:(g2j(...j2g(y,12,30)).join()===[y,12,30].join()?30:29);
+const jl=i=>{const j=g2j(...parts(i));return j[0]+'/'+pad(j[1])+'/'+pad(j[2])};
+const JM=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+let pk=null;
+function openPick(){const j=g2j(...parts(date));pk={y:j[0],m:j[1]};render()}
+function pkMove(dm,dy){let m=pk.m+dm,y=pk.y+dy;while(m>12){m-=12;y++}while(m<1){m+=12;y--}pk={y,m};render()}
+function pkSet(d){date=jToIso(pk.y,pk.m,d);pk=null;render()}
+function pkClose(){pk=null;render()}
+function pickerHtml(){
+  const n=jDim(pk.y,pk.m),off=(new Date(jToIso(pk.y,pk.m,1)+'T12:00:00').getDay()+1)%7,t=iso(new Date());
+  let g=['ش','ی','د','س','چ','پ','ج'].map(x=>`<span>${x}</span>`).join('')+'<span></span>'.repeat(off);
+  for(let d=1;d<=n;d++){const i=jToIso(pk.y,pk.m,d);g+=`<button class="${i===date?'sel ':''}${S.records[i]?'has ':''}${i===t?'td':''}" onclick="pkSet(${d})">${fa(d)}</button>`}
+  return `<div class="pk"><div class="hd"><button class="ib" onclick="pkMove(0,-1)" aria-label="سال قبل">«</button><button class="ib" onclick="pkMove(-1,0)" aria-label="ماه قبل">›</button><b>${JM[pk.m-1]} ${faY(pk.y)}</b><button class="ib" onclick="pkMove(1,0)" aria-label="ماه بعد">‹</button><button class="ib" onclick="pkMove(0,1)" aria-label="سال بعد">»</button></div><div class="g">${g}</div><button class="btn ghost full" style="color:var(--ink);margin:10px 0 0" onclick="pkClose()">بستن</button></div>`;
+}
+function setNote(id,v){v=v.trim();const n=S.notes[date]||(S.notes[date]={});if(v)n[id]=v;else delete n[id];if(!Object.keys(n).length)delete S.notes[date];save()}
+function setName(id,v){v=v.trim();const p=S.people.find(x=>x.id===id);if(!p)return;if(!v||dup(v,id)){msg(!v?'نام نمی‌تواند خالی باشد.':'این نام قبلاً ثبت شده است.');render();return}p.name=v;save();msg('ذخیره شد.')}
+function setPhone(id,v){const p=S.people.find(x=>x.id===id);if(p){p.phone=v.trim();save()}}
+function setDesc(id,v){const p=S.people.find(x=>x.id===id);if(p){p.desc=v.trim();save()}}
+function toggleN(id){openN=openN===id?null:id;render()}
+function applyQ(){document.querySelectorAll('.row[data-n]').forEach(r=>{r.style.display=(!q||r.dataset.n.includes(q))&&(fs==='all'||r.dataset.s===fs)?'':'none'})}
+function msg(t){const e=document.getElementById('st');if(e)e.textContent=t}
+async function saveFile(name,data){const type=name.endsWith('xlsx')?'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'text/csv';const blob=new Blob([data],{type});try{const f=new File([blob],name,{type});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e&&e.name==='AbortError')return}const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+async function exportXlsx(){
+  const days=Object.keys(S.records).sort(),L={p:'حاضر',l:'تأخیر',a:'غایب'};
+  const head=['شماره','نام',...days.map(jl),'حاضر','تأخیر','غایب'];
+  const rows=S.people.map(p=>{const c={p:0,l:0,a:0};const cells=days.map(d=>{const s=S.records[d][p.id];if(s)c[s]++;return s?L[s]:''});return [p.no,p.name,...cells,c.p,c.l,c.a]});
+  try{
+    let name,data;
+    if(window.XLSX){const ws=XLSX.utils.aoa_to_sheet([head,...rows]);ws['!cols']=[{wch:8},{wch:20}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'حضور و غیاب');const nr=[['نام','شماره عضویت','تلفن','تاریخ','وضعیت','ساعت ثبت','دقیقه تأخیر','دلیل غیبت','توضیح']];const nd=Object.keys(S.records).concat(Object.keys(S.notes)).filter((d,i,a)=>a.indexOf(d)===i).sort();S.people.forEach(p=>nd.forEach(d=>{const g=k=>(S[k][d]||{})[p.id]||'';if(g('notes')||g('why')||g('mins'))nr.push([p.name,p.no,p.phone||'',jl(d),L[(S.records[d]||{})[p.id]]||'',g('times'),g('mins'),g('why'),g('notes')])}));const w2=XLSX.utils.aoa_to_sheet(nr);w2['!cols']=[{wch:18},{wch:10},{wch:14},{wch:12},{wch:10},{wch:10},{wch:12},{wch:14},{wch:40}];XLSX.utils.book_append_sheet(wb,w2,'توضیحات');wb.Workbook={Views:[{RTL:true}]};data=XLSX.write(wb,{bookType:'xlsx',type:'array'});name='attendance.xlsx'}
+    else{data='\ufeff'+[head,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n');name='attendance.csv'}
+    await saveFile(name,data);msg('فایل آماده شد.');
+  }catch(e){if(!e||e.code!=='declined')msg('ذخیره فایل انجام نشد.')}
+}
+function shift(n){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+n);date=iso(d);render()}
+function goToday(){date=iso(new Date());render()}
+function setTab(t){tab=t;askDel=null;pk=null;render()}
+const TM=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const faT=t=>t.replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+function sub(k,id,v){const m=S[k][date]||(S[k][date]={});if(v===''||v==null)delete m[id];else m[id]=v;if(!Object.keys(m).length)delete S[k][date]}
+function mark(id,st){askAll=false;const r=S.records[date]||(S.records[date]={});if(r[id]===st){delete r[id];['times','why','mins'].forEach(k=>sub(k,id,null))}else{if(!r[id]&&date===iso(new Date()))sub('times',id,TM());r[id]=st;if(st!=='a')sub('why',id,null);if(st!=='l')sub('mins',id,null)}if(!Object.keys(r).length)delete S.records[date];save();render()}
+function allPresent(){if(!askAll){askAll=true;render();return}askAll=false;const r=S.records[date]=S.records[date]||{};S.people.forEach(p=>{if(!r[p.id]){r[p.id]='p';if(date===iso(new Date()))sub('times',p.id,TM())}});save();render()}
+const dup=(n,ex)=>S.people.some(p=>p.id!==ex&&p.name.trim()===n);
+function addPerson(){const el=document.getElementById('nn');const v=el.value.trim();if(!v)return;if(dup(v)){msg('این نام قبلاً ثبت شده است.');return}S.people.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),no:Math.max(0,...S.people.map(p=>p.no||0))+1,name:v});save();render();document.getElementById('nn').focus()}
+function delPerson(id){if(askDel!==id){askDel=id;render();return}S.people=S.people.filter(p=>p.id!==id);Object.keys(S.records).forEach(d=>{delete S.records[d][id];if(!Object.keys(S.records[d]).length)delete S.records[d]});askDel=null;['notes','why','mins','times'].forEach(k=>Object.keys(S[k]).forEach(d=>{delete S[k][d][id];if(!Object.keys(S[k][d]).length)delete S[k][d]}));save();render()}
+function today(){
+  const r=S.records[date]||{};const c={p:0,l:0,a:0};S.people.forEach(p=>{if(r[p.id])c[r[p.id]]++});
+  let h=`<h1>حضور و غیاب</h1><div class="date"><button class="ib" onclick="shift(-1)" aria-label="روز قبل">›</button><button class="d ib" style="width:auto;flex:1" onclick="openPick()" aria-label="انتخاب تاریخ">${fmt(date)}</button><button class="ib" onclick="shift(1)" aria-label="روز بعد">‹</button></div>${pk?pickerHtml():''}`;
+  if(date!==iso(new Date()))h+=`<button class="btn ghost full" style="color:var(--ink)" onclick="goToday()">برگشت به امروز</button>`;
+  if(!S.people.length)return h+`<div class="empty">هنوز کسی اضافه نشده.<br>از بخش «افراد» اولین نفر را اضافه کنید.</div>`;
+  h+=`<div class="sum"><div><b>${fa(S.people.length)}</b>کل</div><div><b style="color:var(--pre)">${fa(c.p)}</b>حاضر</div><div><b style="color:var(--late)">${fa(c.l)}</b>تأخیر</div><div><b style="color:var(--abs)">${fa(c.a)}</b>غایب</div></div><button class="btn full" onclick="allPresent()">${askAll?'مطمئنید؟ همه حاضر شوند':'همه را حاضر کن'}</button><input class="sq" type="search" placeholder="جستجوی نام" value="${esc(q)}" oninput="q=this.value.trim().toLowerCase();applyQ()"><div class="chips">${[['all','همه'],['u','ثبت‌نشده'],['p','حاضر'],['l','تأخیر'],['a','غایب']].map(([k,l])=>`<button class="${fs===k?'on':''}" onclick="fs='${k}';render()">${l}</button>`).join('')}</div>`;
+  S.people.forEach((p,ix)=>{const s=r[p.id],nt=(S.notes[date]||{})[p.id]||'',why=(S.why[date]||{})[p.id]||'',mins=(S.mins[date]||{})[p.id]||'',tm=(S.times[date]||{})[p.id]||'';h+=`<div class="row" data-n="${esc(p.name.toLowerCase())}" data-s="${s||'u'}"><div class="pr"><div class="nm">${fa(p.no)}. ${esc(p.name)}</div><button class="ib sm" onclick="toggleN('${p.id}')">${nt?'✎ توضیح':'+ توضیح'}</button></div>${(p.phone||p.desc)?`<div class="meta" style="margin:-2px 0 6px">${p.phone?'تلفن: '+esc(p.phone)+' ':''}${esc(p.desc||'')}</div>`:''}${openN===p.id?`<textarea class="ta" rows="2" placeholder="توضیح برای این روز (مثلاً علت غیبت)" onchange="setNote('${p.id}',this.value)">${esc(nt)}</textarea>`:nt?`<div class="nt">${esc(nt)}</div>`:''}<div class="seg"><button class="p ${s==='p'?'on':''}" onclick="mark('${p.id}','p')">حاضر</button><button class="l ${s==='l'?'on':''}" onclick="mark('${p.id}','l')">تأخیر</button><button class="a ${s==='a'?'on':''}" onclick="mark('${p.id}','a')">غایب</button></div>${s==='a'?`<select class="sq" style="margin:8px 0 0" onchange="sub('why','${p.id}',this.value);save()"><option value="">دلیل غیبت…</option>${WHY.map(w=>`<option ${why===w?'selected':''}>${w}</option>`).join('')}</select>`:''}${s==='l'?`<input class="sq" style="margin:8px 0 0" type="number" inputmode="numeric" min="0" placeholder="مدت تأخیر (دقیقه)" value="${esc(String(mins))}" onchange="sub('mins','${p.id}',this.value);save()">`:''}${tm?`<div class="meta" style="margin-top:6px">ساعت ثبت: ${faT(tm)}</div>`:''}</div>`});
+  return h;
+}
+function report(){
+  const days=Object.keys(S.records);
+  let h=`<h1>گزارش</h1>`;
+  if(!S.people.length||!days.length)return h+`<div class="empty">بعد از ثبت اولین حضور و غیاب، گزارش اینجا نمایش داده می‌شود.</div>`;
+  h+=`<p class="meta" style="margin-top:0">تعداد دانش‌آموزان: ${fa(S.people.length)} · تعداد روزهای ثبت‌شده: ${fa(days.length)}</p><button class="btn full" onclick="exportXlsx()">خروجی اکسل</button><div id="st" class="meta" role="status" style="margin-bottom:10px"></div>`;
+  S.people.map(p=>{const c={p:0,l:0,a:0};days.forEach(d=>{const s=S.records[d][p.id];if(s)c[s]++});const t=c.p+c.l+c.a;return{p,c,t,pct:t?Math.round((c.p+c.l)/t*100):0}}).sort((x,y)=>y.pct-x.pct).forEach(({p,c,t,pct},ri)=>{
+    h+=`<div class="row"><div class="pr"><div class="nm" style="margin:0">${fa(ri+1)}. ${esc(p.name)}</div><b>${fa(pct)}٪</b></div><div class="bar">${t?`<i style="width:${c.p/t*100}%;background:var(--pre)"></i><i style="width:${c.l/t*100}%;background:var(--late)"></i><i style="width:${c.a/t*100}%;background:var(--abs)"></i>`:''}</div><div class="meta"><span>حاضر ${fa(c.p)}</span><span>تأخیر ${fa(c.l)}</span><span>غایب ${fa(c.a)}</span></div></div>`});
+  return h;
+}
+function people(){
+  let h=`<h1>افراد (${fa(S.people.length)} نفر)</h1><div class="add"><input id="nn" placeholder="نام را بنویسید" autocomplete="off" onkeydown="if(event.key==='Enter')addPerson()"><button class="btn" onclick="addPerson()">افزودن</button></div><div id="st" class="meta" role="status" style="margin-bottom:8px"></div>`;
+  if(!S.people.length)return h+`<div class="empty">فهرست خالی است. نام اولین نفر را بنویسید.</div>`;
+  S.people.forEach(p=>{h+=`<div class="row"><div class="pr"><b>${fa(p.no)}</b><input class="sq" style="margin:0 8px;flex:1;min-width:0" value="${esc(p.name)}" aria-label="نام" onchange="setName('${p.id}',this.value)"><button class="btn ghost" onclick="delPerson('${p.id}')">${askDel===p.id?'مطمئنید؟ حذف':'حذف'}</button></div><input class="sq" style="margin:8px 0 0" type="tel" placeholder="شماره تماس" value="${esc(p.phone||'')}" onchange="setPhone('${p.id}',this.value)"><input class="sq" style="margin:8px 0 0" placeholder="توضیحات (مسئولیت، یادداشت…)" value="${esc(p.desc||'')}" onchange="setDesc('${p.id}',this.value)"></div>`});
+  return h;
+}
+function render(){
+  const keep=tab==='people'&&document.getElementById('nn')?document.getElementById('nn').value:'';
+  document.getElementById('app').innerHTML=tab==='today'?today():tab==='report'?report():people();
+  const nn=document.getElementById('nn');if(nn&&keep)nn.value=keep;
+  document.getElementById('nav').innerHTML=[['today','امروز'],['report','گزارش'],['people','افراد']].map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="setTab('${k}')">${l}</button>`).join('');applyQ();
+}
+render();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
